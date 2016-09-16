@@ -67,6 +67,12 @@ function update_config() {
    echo "Ok"
 }
 
+function install_undercloud() {
+
+   python ./install_undercloud.py
+}
+
 check_for_libvirt
 unpack_archive
 update_config
+install_undercloud

@@ -6,6 +6,19 @@
 # This is the major release you wish to build.
 cur='17.02'
 
+function check_local_settings() {
+
+   # Make sure they modified the local.settings file
+
+   md5='79407531dfea9d80f87fd0b132fa03f5'
+   mod=$(md5sum local-settings.sh |awk '{print $1}')
+
+   if [ $md5 == $mod ]; then
+      echo "Please update local-settings.sh before trying to proceed."
+      exit 127
+   fi
+}
+
 function get_remote_build_number() {
 
    if [ ! -d db ]; then
@@ -29,6 +42,8 @@ function get_local_build_number() {
       echo $local_build
    fi
 }
+
+check_local_settings
 
 remote_build=$(get_remote_build_number)
 local_build=$(get_local_build_number)
