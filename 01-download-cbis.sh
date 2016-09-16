@@ -3,7 +3,7 @@
 # Download CBIS
 # Joey <joey.mcdonald@nokia.com>
 
-debug='true'
+debug=''
 
 release=$1
 build=$2
