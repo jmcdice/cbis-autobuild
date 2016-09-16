@@ -3,6 +3,8 @@
 # Download CBIS
 # Joey <joey.mcdonald@nokia.com>
 
+debug='true'
+
 release=$1
 build=$2
 
@@ -12,7 +14,11 @@ function download_cbis() {
    working="cbis-$release-$build"
 
    echo "Downloading CBIS: This takes forever..."
-   wget http://cbis-build.cloud-band.com/cbis_local_repo/$release/lastSuccessfulBuild/cbis-installer.tar.gz -O $working/cbis-installer.tar.gz
+   if [ -z "$debug" ]; then
+      wget http://cbis-build.cloud-band.com/cbis_local_repo/$release/lastSuccessfulBuild/cbis-installer.tar.gz -O $working/cbis-installer.tar.gz
+   else
+      cp /root/cbis-installer.tar.gz $working/
+   fi
 }
 
 if [ -z "$build" ] || [ -z "$release" ]; then
