@@ -5,7 +5,13 @@
 
 source local-settings.sh
 
-working_dir=$1
+release=$1
+build=$2
+
+working_dir="cbis-$1-$2"
+
+echo "$release" > db/release.txt
+echo "build" > db/localbuild.txt
 cd $working_dir
 
 function check_for_libvirt() {

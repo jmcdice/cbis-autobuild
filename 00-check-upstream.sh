@@ -35,7 +35,7 @@ function get_remote_build_number() {
 
 function get_local_build_number() {
 
-   if [ ! -f db/lastSuccessfull ]; then
+   if [ ! -f db/localbuild.txt ]; then
       echo 0
    else 
       local_build=$(cat db/lastSuccessfull)

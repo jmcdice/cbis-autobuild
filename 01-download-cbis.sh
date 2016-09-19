@@ -3,7 +3,9 @@
 # Download CBIS
 # Joey <joey.mcdonald@nokia.com>
 
-debug=''
+# This will allow you to avoid downloading the latest cbis version
+# While developing. Run this in your shell
+# export CBIS_DEBUG='true'
 
 release=$1
 build=$2
@@ -14,10 +16,10 @@ function download_cbis() {
    working="cbis-$release-$build"
 
    echo "Downloading CBIS: This takes forever..."
-   if [ -z "$debug" ]; then
-      wget http://cbis-build.cloud-band.com/cbis_local_repo/$release/lastSuccessfulBuild/cbis-installer.tar.gz -O $working/cbis-installer.tar.gz
-   else
+   if [ "$CBIS_DEBUG" == 'true' ]; then
       cp /root/cbis-installer.tar.gz $working/
+   else
+      wget http://cbis-build.cloud-band.com/cbis_local_repo/$release/lastSuccessfulBuild/cbis-installer.tar.gz -O $working/cbis-installer.tar.gz
    fi
 }
 
@@ -27,4 +29,4 @@ if [ -z "$build" ] || [ -z "$release" ]; then
 fi
 
 download_cbis
-bash 02-install-cbis.sh cbis-$release-$build
+bash 02-install-cbis.sh $release $build
