@@ -29,4 +29,4 @@ if [ -z "$build" ] || [ -z "$release" ]; then
 fi
 
 download_cbis
-bash 02-install-cbis.sh $release $build
+bash 02-install-undercloud.sh $release $build
