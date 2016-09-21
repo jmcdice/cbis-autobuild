@@ -30,9 +30,9 @@ CBIS:
         dns_servers: <%= ENV["OC_DNS"] %>
 
         ### guests/VMs MTU ,actually the VM's will be configured with guests_mtu - tunnel_header_size(VXLAN)
-        guests_mtu: <%= ENV["GUESTS_MTU"] %>
+        guests_mtu: <%= ENV["OC_GUESTS_MTU"] %>
         ### host underlay/physical MTU
-        host_underlay_mtu: <%= ENV["UNDERLAY_MTU"] %>
+        host_underlay_mtu: <%= ENV["OC_HOST_UNDERLAY_MTU"] %>
 
         ### Optional. Hardware model type
         ### possible values:
@@ -56,7 +56,7 @@ CBIS:
         ###     hp_ilo4_bl460cg9
         ###     ar-bareb1
         ### If not specified, FM and PM functionality will use hp_ilo4_bl460cg9.
-        hw_model_type: <%= ENV["HWENV"] %> 
+        hw_model_type: <%= ENV["HWTYPE"] %> 
 
     # Subnet networks should not overlap.
     subnets:
@@ -170,10 +170,10 @@ CBIS:
 
         provisioning:
             ### network address in CIDR format (e.g. 192.168.0.0/24)
-            network_address: 172.31.255.0/24
+            network_address: <%= ENV["OC_PROVISIONING_NETWORK_CIDR"] %>
 
             ### ip address of the gateway
-            gateway: 172.31.255.1
+            gateway: <%= ENV["OC_PROVISIONING_NETWORK_GW"] %>
 
             ### by default the host_underlay_mtu will be used, if required the user can set different value ( smaller than host_underlay_mtu)
             ### This will configure the vlan interfaces
