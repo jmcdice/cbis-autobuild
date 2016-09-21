@@ -1,0 +1,653 @@
+# Configuration required for CBIS automatic installation
+# Use this template to provide configuration to be used.
+# Only attributes marked as optional can be commented out.
+# All uncommented <VALUE> tags should be replaced with a valid value.
+# If the attribute already has a value, it can replaced with a new value,
+# or the existing default value is used.
+
+---
+version: 17.0.0
+
+CBIS:
+
+    # Common configuration part
+    common:
+
+        # Name of the overcloud (overcloud nodes are named with this prefix)
+        # Cloud name can consist of lower case letters, digits and dash (-).
+        # Name must start and end with a letter or a digit.
+        cloud_name: cbis
+
+        # IP addresses of the ntp server
+        ntp_servers: <%= ENV["OC_NTP"] %>
+
+        # linux time zone name  (e.g. Europe/Brussels or Asia/Shanghai)
+        time_zone: <%= ENV["OC_DNS"] %>
+
+        # Select the keyboard type (e.g. us, ge, fr)
+        keyboard: us
+
+        # ip address for primay dns
+        dns_servers: <%= ENV["OC_DNS"] %>
+
+        # guests/VMs MTU ,actually the VM's will be configured with guests_mtu
+        # tunnel_header_size(VXLAN)
+        guests_mtu: <%= ENV["OC_GUESTS_MTU"] %>
+        # host underlay/physical MTU
+        host_underlay_mtu: <%= ENV["OC_HOST_UNDERLAY_MTU"] %>
+
+        # Optional. Hardware model type
+        # possible values:
+        #     airframe_OVS
+        #     airframe_OVS_4xSRIOV
+        #     dell-720_OVS
+        #     dell-730_OVS
+        #     dell-730_OVS_2xSRIOV
+        #     hp-c7kg6_OVS
+        #     hp-c7kg8_OVS
+        #     hp-c7kg8_OVS_2xSRIOV
+        #     hp-c7kg9_OVS
+        #     hp-c7kg9_OVS_1xSRIOV_fALU
+        #     hp-c7kg9_OVS_2xSRIOV
+        #     hp-slg7_OVS
+        #     hp-slg8_OVS
+        #     virtual
+        # NCIO:
+        #     hp_ilo4_dl360g8
+        #     hp_ilo4_bl460cg8
+        #     hp_ilo4_bl460cg9
+        #     ar-bareb1
+        # If not specified, FM and PM functionality will use hp_ilo4_bl460cg9.
+        hw_model_type: <%= ENV["HWTYPE"] %>
+
+    # Subnet networks should not overlap.
+    subnets:
+
+        external:
+            # network address in CIDR format
+            # Make sure that subnet has adequate number of ip addresses for
+            #     - required number of external_net_ips
+            network_address: <%= ENV["OC_EXTERNAL_CIDR"] %>
+
+            # optional, vlan id
+            # If vlan id is not given a dedicated interface has to be
+            # mapped per host/network
+            vlan: <%= ENV["OC_EXTERNAL_VLAN"] %>
+
+            # ip address of the gateway
+            gateway: <%= ENV["OC_EXTERNAL_GW"] %>
+
+            # Range for external and floating IPs.
+            #  - IP range:
+            #    - 1st address is public vip
+            #    - the rest addresses are assigned to machines in overcloud
+            ip_range_start: <%= ENV["OC_EXTERNAL_IP_START"] %>
+            ip_range_end: <%= ENV["OC_EXTERNAL_IP_END"] %>
+
+            # by default the host_underlay_mtu will be used, if required the
+            # user can set different value ( smaller than host_underlay_mtu)
+            # This will configure the vlan interfaces
+            mtu: ref:common.host_underlay_mtu
+
+        tenant:
+            # Network address in CIDR format (e.g. 192.168.3.0/24)
+            network_address: <%= ENV["OC_TENANT_NETWORK_CIDR"] %>
+
+            # optional, vlan id
+            # If vlan id is not given a dedicated interface has to be
+            # mapped per host/network
+            vlan: <%= ENV["OC_TENANT_NETWORK_VLAN"] %>
+
+            # by default the host_underlay_mtu will be used, if required the
+            # user can set different value ( smaller than host_underlay_mtu)
+            # This will configure the vlan interfaces
+            mtu: ref:common.host_underlay_mtu
+
+        # Optional. Hardware management subnet
+        # Hardware management subnet needs to be defined when there
+        # is no Route via external subnet to hwmgmt_addr of hosts.
+        # ipmi:
+        # Network address in CIDR (e.g. 192.168.5.0/24)
+        # network_address: <VALUE>
+
+        # optional, vlan id
+        # If vlan id is not given a dedicated interface has to be
+        # mapped per host/network
+        # vlan:
+
+        # IP range.
+        #    (one address per controller)
+        # ip_range_start: <VALUE>
+        # ip_range_end: <VALUE>
+
+        # optional, network MTU. If not stated, the host_underlay_mtu
+        # will be used. This will configure the vlan interfaces
+        # mtu: 1600
+
+        # Optional.
+        # This configuration is required if there are ceph hosts in
+        # the configuration (openstack_storage_backend
+        # attribute has value ceph)
+        storage:
+            # Optional
+            # network address in CIDR format (e.g. 192.168.2.0/24)
+            network_address: <%= ENV["OC_STORAGE_CIDR"] %>
+
+            # optional, vlan id
+            # If vlan id is not given a dedicated interface has to be
+            # mapped per host/network
+            vlan: <%= ENV["OC_STORAGE_VLAN"] %>
+
+            # by default the host_underlay_mtu will be used, if required
+            # the user can set different value ( smaller than host_underlay_mtu)
+            # This will configure the vlan interfaces
+            mtu: ref:common.host_underlay_mtu
+
+        # Optional.
+        # This configuration is required if there are ceph hosts in
+        # the configuration
+        storage_mgmt:
+            # Optional
+            # network address in CIDR format (e.g. 192.168.4.0/24)
+            network_address: <%= ENV["OC_STORAGE_MGMT_CIDR"] %>
+
+            # optional, vlan id
+            # If vlan id is not given a dedicated interface has to be
+            # mapped per host/network
+            vlan: <%= ENV["OC_STORAGE_MGMT_VLAN"] %>
+
+            # by default the host_underlay_mtu will be used, if required
+            # the user can set different value ( smaller than host_underlay_mtu)
+            # This will configure the vlan interfaces
+            mtu: ref:common.host_underlay_mtu
+
+        internal_api:
+            # network address in CIDR format (e.g. 192.168.1.0/24)
+            network_address: <%= ENV["OC_INTERNAL_API"] %>
+
+            # optional, vlan id
+            # If vlan id is not given a dedicated interface has to be
+            # mapped per host/network
+            vlan: <%= ENV["OC_INTERNAL_API_VLAN"] %>
+
+            # by default the host_underlay_mtu will be used, if required the
+            # user can set different value ( smaller than host_underlay_mtu)
+            # This will configure the vlan interfaces
+            mtu: ref:common.host_underlay_mtu
+
+        provisioning:
+            # network address in CIDR format (e.g. 192.168.0.0/24)
+            network_address: <%= ENV["OC_PROVISIONING_NETWORK_CIDR"] %>
+
+            # ip address of the gateway
+            gateway: <%= ENV["OC_PROVISIONING_NETWORK_GW"] %>
+
+            # by default the host_underlay_mtu will be used, if required the
+            # user can set different value ( smaller than host_underlay_mtu)
+            # This will configure the vlan interfaces
+            mtu: ref:common.host_underlay_mtu
+
+    # Storage configuration
+    storage:
+        # hyper converge infrastructure, boolean flag,
+        # please set true if you want ceph Hyper 'Converge ...
+        ceph_hci: true
+        ceph_pool_size: 3
+        ceph_pool_pg_num: 1024
+        # Array of Disks/Journals to be used by ceph storage nodes
+        # example: ["/dev/sdb:/dev/sdk","/dev/sdc"] which means: device sdb uses
+        # journal sdk and sdc uses the journal on the same device sdc
+        ceph_disks: []
+        external_storage_enabled: false
+        # the external storage host name, when addressing netapp eseries
+        # array of comma seperated ip addresses.
+        # when using external netapp it should be external storage target ip
+        external_storage_server_hostname: []
+        # a valid integer to set the timeout for long operations like LUN
+        # migration/creations
+        external_default_timeout: 10
+        # when using netapp eseries array of comma separated controllers ip
+        external_storage_controller_ips: []
+        # can be one of 2 supported storage families: eseries, ontap_7mode'
+        external_storage_family: eseries
+        # for emc storage external-storage-iscsi-ip is mandatory
+        external_storage_iscsi_ip:
+        # login name that will be used to access the external storage system
+        external_storage_login: rw
+        # password to be used to access the external storage system
+        external_storage_password: rw
+        external_storage_max_luns_per_storage_group: 256
+        # for emc only: this is ip of VNX storage processor A
+        external_storage_san_ip:
+        # for emc only (Optional): this is ip of VNX storage processor B
+        external_storage_secondary_san_ip:
+        # the port of the netapp server,
+        # if using eseries it should be the santricity proxy port
+        external_storage_server_port: 8082
+        # array of the external storage pools, each pool separated by comma
+        # delimiter
+        external_storage_storage_pools: []
+        # External storage type, allowed options are [emc|netapp]
+        external_storage_system:
+        external_storage_volume_backend_name: tripleo_emc
+
+    # Udercloud configuration
+    undercloud:
+
+        # Undercloud and hypervisor IP addresses in CIDR format
+        # Example: undercloud_cidr: 10.5.194.10/24
+        # Example: hypervisor_cidr: 10.5.194.11/24
+
+        undercloud_cidr: 10.5.133.11/24
+        hypervisor_cidr: 10.5.133.10/24
+
+        # undercloud certificates
+        cert: util/undercloud.pem
+        server_cert: util/server-cert.pem
+
+        # overcloud kernel type [latest|iscsi]
+        overcloud_kernel_type: latest
+
+        # Network Config
+        # This will contain the full networking topology of the host.
+        configure_hypervisor_network: false
+        network_config:
+            - name: br-public
+              type: linux_bridge
+              members: >
+                  ref:common_network_config.pub1_physical_interface:
+                      - merge-with-json {
+                         "primary":"true"
+                        }
+                  ref:optional:undercloud.hypervisor_vlan_interface
+              addresses:
+                  - ip_netmask: ref:undercloud.hypervisor_cidr
+              dns_servers: ref:common.dns_servers
+              routes:
+                  - next_hop: ref:subnets.external.gateway
+                    default: true
+            - name: br-provision
+              type: linux_bridge
+              members: >
+                  ref:common_network_config.private_physical_interface
+                      - merge-with-json {
+                         "primary":"true"
+                        }
+              addresses:
+                  - ip_netmask: 172.31.255.254/24
+
+        hypervisor_vlan_interface:
+            __include_if_exist: ref:subnets.external.vlan
+            type: vlan
+            device: ref:common_network_config.pub1_physical_interface.name
+            vlan_id: ref:subnets.external.vlan
+            mtu: ref
+                - optional:subnets.external.mtu:default {
+                    ref:common.host_underlay_mtu
+                  }
+            addresses:
+                - ip_netmask: ref:undercloud.hypervisor_cidr
+
+    # Configuration for openstack deployment
+    openstack_deployment:
+
+        # admin password (at least 8 characters; at least one letter)
+        # used by the Openstack admin and the linux user ncioadmin
+        admin_password: h0r1z0n
+
+        # Tenant network tunnel type. Valid values vlan / vxlan
+        tenant_network_tunnel_type: vxlan
+
+        # These two values are needed
+        # only if tenant_network_tunnel_type is vlan
+        # vlan_range_start: <VALUE>
+        # vlan_range_end: <VALUE>
+
+        # Openstack storage backend. Applied for cinder, glance, nova
+        # Possible values: local / ceph
+        openstack_storage_backend: local
+
+        # Valid values: true / false
+        # Required if there are ceph nodes.
+        ephemeral_storage_on_rbd: true
+
+        # The OSD replica count.
+        # The number of replicas for objects in the pool.
+        # Valid value range for any production environment: 2 - 3
+        # (for testing purposes only, in environments with very limited
+        #  storage resource, value 1 can be used as well)
+        # Required if there are ceph nodes.
+        osd_pool_default_size: 2
+
+        # Optional. Files to the Overcloud SSL certificates
+        # Eg: /home/stack/overcloud_cert.crt
+        # Either none or all must be given
+        # overcloud_ssl_certificate: /home/stack/overcloud_cert.crt
+        # overcloud_ssl_certificate_key: /home/stack/overcloud_cert.key
+        # Mandatory, if using self signed certificates or if the root
+        # certificate is not included in the default linux root CA bundle
+        # overcloud_ssl_root_certificate: /home/stack/overcloud_root.csr
+
+        # Optional. Zabbix deployment and database name, user and pass
+        deploy_zabbix: true
+        zabbix_username: admin
+        zabbix_password: zabbix
+
+        # Optional. Deploy elk and configure Kibana username and password
+        deploy_elk: true
+        kibana_username: kibana
+        kibana_password: kibanauser
+
+        # Mandatory. Backup encryption password and timing
+        # backup_hour - cron format accepted:
+        #   - 2 (at 2am)
+        #   - [2,3,4,5] - at 2am, 3am, 4am and 5am
+        #   - ['2-6'] - every hour between 2am and 6am
+        # backup_minute - cron format accepted:
+        #   - 0 - on the hour
+        #   - '*/10' - each 10 minutes
+        #   - [10,15,25] 0 at 10, 15 and 25 minutes past the hour
+        backup_password: b4cK1tup!!
+        backup_hour: 2
+        backup_minute: 0
+        backup_nfs_mountpoint: /root/backup
+
+    # Convinience (for re-use purposes)
+    common_network_config:
+
+        # Physical NICs
+
+        private_physical_interface:
+        name: enp4s0f0
+        type: interface
+        mtu: ref:common.host_underlay_mtu
+
+        storage_physical_interface:
+        name: enp5s0d1
+        type: interface
+        use_dhcp: false
+        mtu: ref:common.host_underlay_mtu
+
+        pub1_physical_interface:
+        name: enp4s0f1
+        type: interface
+        mtu: ref:common.host_underlay_mtu
+
+        pub2_physical_interface:
+        name: enp5s0
+        type: interface
+        mtu: ref:common.host_underlay_mtu
+
+        pub1_physical_interface_off:
+        ref:common_network_config.pub1_physical_interface:merge-with-json {
+          "use_dhcp":"false"
+        }
+
+      pub2_physical_interface_off:
+        ref:common_network_config.pub2_physical_interface:merge-with-json {
+          "use_dhcp":"false"
+        }
+
+      # VLAN interfaces
+
+      internal_api_vlan_interface:
+        __include_if_exist: ref:subnets.internal_api.vlan
+        type: vlan
+        vlan_id: ref:subnets.internal_api.vlan
+        mtu: ref:optional:subnets.internal_api.mtu:default {ref:common.host_underlay_mtu}
+        addresses:
+          - ip_netmask: ref:subnets.internal_api.network_address
+
+      storage_vlan_interface:
+        __include_if_exist: ref:optional:subnets.storage.vlan
+        type: vlan
+        vlan_id: ref:subnets.storage.vlan
+        mtu: ref:optional:subnets.storage.mtu:default {ref:common.host_underlay_mtu}
+        addresses:
+          - ip_netmask: ref:subnets.storage.network_address
+
+      storage_mgmt_vlan_interface:
+        __include_if_exist: ref:optional:subnets.storage_mgmt.vlan
+        type: vlan
+        vlan_id: ref:subnets.storage_mgmt.vlan
+        mtu: ref:optional:subnets.storage_mgmt.mtu:default {ref:common.host_underlay_mtu}
+        addresses:
+          - ip_netmask: ref:subnets.storage_mgmt.network_address
+
+      tenant_vlan_interface:
+        __include_if_exist: ref:optional:subnets.tenant.vlan
+        type: vlan
+        vlan_id: ref:subnets.tenant.vlan
+        mtu: ref:optional:subnets.tenant.mtu:default {ref:common.host_underlay_mtu}
+        addresses:
+          - ip_netmask: ref:subnets.tenant.network_address
+
+      # Virtual switches
+
+      private_ovs_virtual_switch:
+        name: br-all
+        type: ovs_bridge
+        use_dhcp: false
+        dns_servers: ref:common.dns_servers
+        mtu: ref:common.host_underlay_mtu
+        addresses:
+          - ip_netmask: ref:subnets.provisioning.network_address
+        routes:
+          - ip_netmask: 169.254.169.254/32
+            next_hop: ref:subnets.provisioning.gateway
+        members:
+          - ref:common_network_config.private_physical_interface
+          - ref:optional:common_network_config.internal_api_vlan_interface
+
+      private_no_internal_ovs_virtual_switch:
+        ref:common_network_config.private_ovs_virtual_switch:merge-with-json {
+          "members":[
+            "ref:common_network_config.private_physical_interface"
+          ]
+        }
+
+      storage_ovs_virtual_switch:
+        name: br-storage
+        type: ovs_bridge
+        mtu: ref:common.host_underlay_mtu
+        use_dhcp: false
+        members:
+          - ref:common_network_config.storage_physical_interface
+          - ref:optional:common_network_config.storage_vlan_interface
+          - ref:optional:common_network_config.storage_mgmt_vlan_interface
+
+      base_public_virtual_switch:
+        type: ovs_bridge
+        name: br-ex
+        use_dhcp: false
+
+      compute_public_virtual_switch:
+        ref:common_network_config.base_public_virtual_switch:merge-with-json {
+          "members":[
+            "ref:common_network_config.pub1_physical_interface",
+            "ref:optional:common_network_config.tenant_vlan_interface"
+          ]
+        }
+
+      dpdk_compute_public_virtual_switch:
+        ref:common_network_config.base_public_virtual_switch
+
+      controller_public_virtual_switch:
+        ref:common_network_config.compute_public_virtual_switch:merge-with-json {
+          "addresses":[
+            {"ip_netmask":"ref:subnets.external.network_address"}
+          ],
+          "routes":[
+            {"default":"true","next_hop":"ref:subnets.external.gateway"}
+          ]
+        }
+
+    # Host group level configuration
+    host_group_config:
+
+        # Copy and fill a host_group section for each host group for
+        # which there are hosts, using host_group name as a key.
+        # All host group names are valid as long as they are unique
+        # and don't contain spaces (use underline instead).
+        # Example for host group names:
+        #     controllers, computes, storage_computes, performance_computes,
+        #     performance_storage_computes
+        #
+        # Each host group definition must contain the property "role"
+        # which defines the role of the hosts that are related to this
+        # host group.
+        # A host group that contains the role "compute" will be represented in
+        # the overcloud's openstack as a host-aggregate with the name of the host group.
+        # E.g. in the below example, at the end of the overcloud installation,
+        # there will be three host-aggregates in the overcloud named:
+        # "compute_nodes", "performance_compute_nodes" and "computes_and_storage_nodes".
+        # Each of the host-aggregates will contain metadata that represents the features
+        # that are enabled in the host-group (SR-IOV, DPDK, CPU isolation, Hugepages etc...)
+
+
+        controller_nodes:
+
+            # Mandatory. host-group-members role.
+            # Possible values:
+            #      compute, control, ceph-storage
+            role: control
+
+            # Network Config
+            # This will contain the full networking topology of the host.
+            network_config:
+              - ref:common_network_config.private_ovs_virtual_switch
+              - ref:common_network_config.storage_ovs_virtual_switch
+              - ref:common_network_config.controller_public_virtual_switch
+              - ref:common_network_config.pub2_physical_interface_off
+
+            # Uncomment if there are computes that have SR-IOV/PCI-PT enabled
+            # Format is: supported_pci_vendor_devices: 8086:10ed,8086:10ca,...
+            #supported_pci_vendor_devices: 8086:10ed
+
+        compute_nodes:
+
+            # Mandatory. host-group-members role.
+            # Possible values:
+            #      compute, control, ceph-storage
+            role: compute
+
+            # Network Topology
+            # This will contain the full networking topology of the host.
+            network_config:
+              - ref:common_network_config.private_ovs_virtual_switch
+              - ref:common_network_config.storage_ovs_virtual_switch
+              - ref:common_network_config.compute_public_virtual_switch
+              - ref:common_network_config.pub2_physical_interface_off
+
+            # Storage configuration overrides
+            # Optional
+            #storage_config:
+            #  enable_ceph_storage: true
+            #  ceph:
+            #    profile:
+            #      params:
+            #        osds: {"/dev/sdb": {}, "/dev/sdc": {}, "/dev/sde": {}, "/dev/sdf": {}, "/dev/sdh": {}}
+
+            cpu_allocation_ratio: 1.0
+            ram_allocation_ratio: 0.85
+
+        dpdk_performance_compute_nodes:
+
+            # Mandatory. host-group-members role.
+            # Possible values:
+            #      compute, control, ceph-storage
+            role: compute
+
+            # Network Config
+            # This will contain the full networking topology of the host.
+            network_config:
+              - ref:common_network_config.private_ovs_virtual_switch:merge-with-json {
+                  "type":"linux_bridge"
+                }
+              - ref:common_network_config.storage_ovs_virtual_switch:merge-with-json {
+                  "type":"linux_bridge"
+                }
+              - ref:common_network_config.dpdk_compute_public_virtual_switch
+              - ref:common_network_config.pub2_physical_interface_off
+              - ref:common_network_config.pub1_physical_interface_off
+
+
+            # Storage configuration overrides
+            # Optional
+            #storage_config:
+            #  enable_ceph_storage: false
+
+            #
+            # For performance hosts
+
+
+            # Hypervisor dedicated CPUs
+
+            # Optional
+            # Configuration for the number of CPUs to isolate that will be used only by the hypervisor processes
+            # Valid values are between 0 (no CPU isolation) and the number of CPU cores
+            # Default value: 0 (if entry doesn't exist)
+            hypervisor_dedicated_cpus: 6
+
+            # HugePages
+            # 1G hugepages is mandatory for DPDK
+            # Configuration for huge page size
+            # Valid values are: 1G/2M/None
+            # Default value: None (the feature is disabled)
+            hugepages_size: 1G
+
+            # Optional
+            # Configuration for the memory percent to be used for hugepages
+            # Valid values are between 10 and 70
+            # Default value: 70 (valid in case that hugepages_size is either 1G or 2M)
+            memory_percent_for_hugepages: 70
+
+
+            # DPDK
+
+            # Optional
+            # The NIC names on which DPDK should be enabled
+            # Default value: empty (DPDK will not be enabled on this node)
+            dpdk_nic_names: "ref:common_network_config.pub1_physical_interface.name"
+
+            # Optional
+            # The number of dedicated CPUs per DPDK NIC for automatic choice of CPUs
+            # Default value: 4 (per nic present in dpdk_nic_names)
+            dpdk_dedicated_cpus_per_nic: 4
+
+            # Optional and VALID ONLY FOR OLD BIOS/HW VERSIONS (such as HP SL-230 G7
+            # in which we can't detect NIC NUMA node number using operating system commands)
+            # The DPDK NIC NUMA node numbers. Uncomment this parameter only if calling:
+            # "cat /sys/class/net/{INTENDED_DPDK_INTERFACE_NAME}/device/numa_node" returns "-1"
+            # If using Airframe(S2BP-MB), Dell (PowerEdge R730) or HP(BL460c-G9/G8), leave the below commented out.
+            # Default value: empty list (works for most of the hardwares)
+            #dpdk_nic_numa_nodes: 0,1
+
+            cpu_allocation_ratio: 1.0
+            ram_allocation_ratio: 0.85
+
+        storage_nodes:
+
+            # Mandatory. host-group-members role.
+            # Possible values:
+            #      compute, controller, ceph-storage
+            role: ceph-storage
+
+            # Network Topology
+            # This will contain the full networking topology of the host.
+            network_config:
+              - ref:common_network_config.private_no_internal_ovs_virtual_switch
+              - ref:common_network_config.storage_ovs_virtual_switch
+              - ref:common_network_config.pub1_physical_interface_off
+              - ref:common_network_config.pub2_physical_interface_off
+
+            # For storage hosts
+
+            # Storage configuration overrides
+            # Optional
+            #storage_config:
+            #  enable_ceph_storage: true
+            #  ceph:
+            #    profile:
+            #      params:
+            #        osds: {"/dev/sdb": {}, "/dev/sdc": {}, "/dev/sde": {}, "/dev/sdf": {}, "/dev/sdh": {}}

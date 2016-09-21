@@ -3,16 +3,16 @@
 # Install the CBIS undercloud
 # Joey <joey.mcdonald@nokia.com>
 
-source local-settings.sh
+source ../local-settings.sh
 
 release=$1
 build=$2
 
 working_dir="cbis-$1-$2"
 
-echo "$release" > db/release.txt
-echo "build" > db/localbuild.txt
-cd $working_dir
+echo "$release" > ../db/release.txt
+echo "build" > ../db/localbuild.txt
+cd ../$working_dir
 
 function check_for_libvirt() {
 
@@ -25,7 +25,6 @@ function check_for_libvirt() {
 }
 
 function check_for_nfs() {
-
 
    rpm -q nfs-utils &> /dev/null 
    if [ $? != '0' ]; then
@@ -46,7 +45,6 @@ function check_for_nfs() {
    # systemctl start nfs-idmap
    # firewall-cmd --permanent --zone=public --add-service=nfs
    # firewall-cmd --reload
-
 }
 
 function unpack_archive() {

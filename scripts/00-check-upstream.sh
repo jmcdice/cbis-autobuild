@@ -21,24 +21,24 @@ function check_local_settings() {
 
 function get_remote_build_number() {
 
-   if [ ! -d db ]; then
+   if [ ! -d ../db ]; then
       # First run?
       mkdir db
    else
-      rm db/remote_build_number.txt
+      rm ../db/remote_build_number.txt
    fi
 
-   wget -q http://cbis-build.cloud-band.com/cbis_local_repo/$cur/lastSuccessfull -O db/remote_build_number.txt 
-   remote_current=$(cat db/remote_build_number.txt)
+   wget -q http://cbis-build.cloud-band.com/cbis_local_repo/$cur/lastSuccessfull -O ../db/remote_build_number.txt 
+   remote_current=$(cat ../db/remote_build_number.txt)
    echo $remote_current
 }
 
 function get_local_build_number() {
 
-   if [ ! -f db/localbuild.txt ]; then
+   if [ ! -f ../db/localbuild.txt ]; then
       echo 0
    else 
-      local_build=$(cat db/lastSuccessfull)
+      local_build=$(cat ../db/lastSuccessfull)
       echo $local_build
    fi
 }

@@ -19,7 +19,7 @@ function download_cbis() {
    if [ "$CBIS_DEBUG" == 'true' ]; then
       cp /root/cbis-installer.tar.gz $working/
    else
-      wget http://cbis-build.cloud-band.com/cbis_local_repo/$release/lastSuccessfulBuild/cbis-installer.tar.gz -O $working/cbis-installer.tar.gz
+      wget http://cbis-build.cloud-band.com/cbis_local_repo/$release/lastSuccessfulBuild/cbis-installer.tar.gz -O ../$working/cbis-installer.tar.gz
    fi
 }
 
